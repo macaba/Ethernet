@@ -131,7 +131,8 @@ void EthernetClient::stop() {
   // attempt to close the connection gracefully (send a FIN to other side)
   disconnect(_sock);
   unsigned long start = millis();
-
+  delayMicroseconds(250);
+  
   // wait a second for the connection to close
   while (status() != SnSR::CLOSED && millis() - start < 1000)
     delay(1);
