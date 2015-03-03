@@ -8,6 +8,10 @@ uint8_t EthernetClass::_state[MAX_SOCK_NUM] = {
 uint16_t EthernetClass::_server_port[MAX_SOCK_NUM] = { 
   0, 0, 0, 0 };
 
+EthernetClass::EthernetClass(){
+	_initialised = false;
+}
+
 int EthernetClass::begin(uint8_t *mac_address)
 {
   static DhcpClass s_dhcp;
@@ -34,7 +38,7 @@ int EthernetClass::begin(uint8_t *mac_address)
     SPI.endTransaction();
     _dnsServerAddress = _dhcp->getDnsServerIp();
   }
-
+	_initialised = ret;
   return ret;
 }
 
@@ -72,6 +76,11 @@ void EthernetClass::begin(uint8_t *mac, IPAddress local_ip, IPAddress dns_server
   W5100.setSubnetMask(subnet._address);
   SPI.endTransaction();
   _dnsServerAddress = dns_server;
+  _initialised = 1;
+}
+
+uint8_t EthernetClass::initialised() {
+	return _initialised;
 }
 
 int EthernetClass::maintain(){
