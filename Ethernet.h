@@ -14,7 +14,9 @@ class EthernetClass {
 private:
   IPAddress _dnsServerAddress;
   DhcpClass* _dhcp;
+  uint8_t _initialised;
 public:
+	EthernetClass();
   static uint8_t _state[MAX_SOCK_NUM];
   static uint16_t _server_port[MAX_SOCK_NUM];
   // Initialise the Ethernet shield to use the provided MAC address and gain the rest of the
@@ -25,6 +27,7 @@ public:
   void begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server);
   void begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway);
   void begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
+  uint8_t initialised();
   int maintain();
 
   IPAddress localIP();
