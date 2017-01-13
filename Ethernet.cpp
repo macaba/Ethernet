@@ -5,32 +5,38 @@
 IPAddress EthernetClass::_dnsServerAddress;
 DhcpClass* EthernetClass::_dhcp = NULL;
 
-int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)
+EthernetClass::EthernetClass(){
+	_initialised = false;
+}
+
+int EthernetClass::begin(uint8_t *mac_address)
 {
-	static DhcpClass s_dhcp;
-	_dhcp = &s_dhcp;
+  static DhcpClass s_dhcp;
+  _dhcp = &s_dhcp;
 
-	// Initialise the basic info
-	W5100.init();
-	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-	W5100.setMACAddress(mac);
-	W5100.setIPAddress(IPAddress(0,0,0,0).raw_address());
-	SPI.endTransaction();
 
-	// Now try to get our config info from a DHCP server
-	int ret = _dhcp->beginWithDHCP(mac, timeout, responseTimeout);
-	if (ret == 1) {
-		// We've successfully found a DHCP server and got our configuration
-		// info, so set things accordingly
-		SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-		W5100.setIPAddress(_dhcp->getLocalIp().raw_address());
-		W5100.setGatewayIp(_dhcp->getGatewayIp().raw_address());
-		W5100.setSubnetMask(_dhcp->getSubnetMask().raw_address());
-		SPI.endTransaction();
-		_dnsServerAddress = _dhcp->getDnsServerIp();
-		socketPortRand(micros());
-	}
-	return ret;
+  // Initialise the basic info
+  W5100.init();
+  SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+  W5100.setMACAddress(mac_address);
+  W5100.setIPAddress(IPAddress(0,0,0,0).raw_address());
+  SPI.endTransaction();
+
+  // Now try to get our config info from a DHCP server
+  int ret = _dhcp->beginWithDHCP(mac_address);
+  if(ret == 1)
+  {
+    // We've successfully found a DHCP server and got our configuration info, so set things
+    // accordingly
+    SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+    W5100.setIPAddress(_dhcp->getLocalIp().raw_address());
+    W5100.setGatewayIp(_dhcp->getGatewayIp().raw_address());
+    W5100.setSubnetMask(_dhcp->getSubnetMask().raw_address());
+    SPI.endTransaction();
+    _dnsServerAddress = _dhcp->getDnsServerIp();
+  }
+	_initialised = ret;
+  return ret;
 }
 
 void EthernetClass::begin(uint8_t *mac, IPAddress ip)
@@ -59,20 +65,19 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress g
 
 void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway, IPAddress subnet)
 {
-	W5100.init();
-	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
-	W5100.setMACAddress(mac);
-#if ARDUINO > 106 || TEENSYDUINO > 121
-	W5100.setIPAddress(ip._address.bytes);
-	W5100.setGatewayIp(gateway._address.bytes);
-	W5100.setSubnetMask(subnet._address.bytes);
-#else
-	W5100.setIPAddress(ip._address);
-	W5100.setGatewayIp(gateway._address);
-	W5100.setSubnetMask(subnet._address);
-#endif
-	SPI.endTransaction();
-	_dnsServerAddress = dns;
+  W5100.init();
+  SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+  W5100.setMACAddress(mac);
+  W5100.setIPAddress(local_ip._address);
+  W5100.setGatewayIp(gateway._address);
+  W5100.setSubnetMask(subnet._address);
+  SPI.endTransaction();
+  _dnsServerAddress = dns_server;
+  _initialised = 1;
+}
+
+uint8_t EthernetClass::initialised() {
+	return _initialised;
 }
 
 void EthernetClass::init(uint8_t sspin)

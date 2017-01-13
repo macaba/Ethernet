@@ -20,61 +20,31 @@ class DhcpClass;
 
 class EthernetClass {
 private:
-	static IPAddress _dnsServerAddress;
-	static DhcpClass* _dhcp;
+  IPAddress _dnsServerAddress;
+  DhcpClass* _dhcp;
+  uint8_t _initialised;
 public:
-	// Initialise the Ethernet shield to use the provided MAC address and
-	// gain the rest of the configuration through DHCP.
-	// Returns 0 if the DHCP configuration failed, and 1 if it succeeded
-	static int begin(uint8_t *mac, unsigned long timeout = 60000, unsigned long responseTimeout = 4000);
-	static int maintain();
+	EthernetClass();
+  static uint8_t _state[MAX_SOCK_NUM];
+  static uint16_t _server_port[MAX_SOCK_NUM];
+  // Initialise the Ethernet shield to use the provided MAC address and gain the rest of the
+  // configuration through DHCP.
+  // Returns 0 if the DHCP configuration failed, and 1 if it succeeded
+  int begin(uint8_t *mac_address);
+  void begin(uint8_t *mac_address, IPAddress local_ip);
+  void begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server);
+  void begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway);
+  void begin(uint8_t *mac_address, IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet);
+  uint8_t initialised();
+  int maintain();
 
-	// Manaul configuration
-	static void begin(uint8_t *mac, IPAddress ip);
-	static void begin(uint8_t *mac, IPAddress ip, IPAddress dns);
-	static void begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway);
-	static void begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress gateway, IPAddress subnet);
-	static void init(uint8_t sspin = 10);
-	static IPAddress localIP();
-	static IPAddress subnetMask();
-	static IPAddress gatewayIP();
-	static IPAddress dnsServerIP() { return _dnsServerAddress; }
+  IPAddress localIP();
+  IPAddress subnetMask();
+  IPAddress gatewayIP();
+  IPAddress dnsServerIP();
 
-	friend class EthernetClient;
-	friend class EthernetServer;
-	friend class EthernetUDP;
-private:
-	// Opens a socket(TCP or UDP or IP_RAW mode)
-	static uint8_t socketBegin(uint8_t protocol, uint16_t port);
-	static uint8_t socketStatus(uint8_t s);
-	// Close socket
-	static void socketClose(uint8_t s);
-	// Establish TCP connection (Active connection)
-	static void socketConnect(uint8_t s, uint8_t * addr, uint16_t port);
-	// disconnect the connection
-	static void socketDisconnect(uint8_t s);
-	// Establish TCP connection (Passive connection)
-	static uint8_t socketListen(uint8_t s);
-	// Send data (TCP)
-	static uint16_t socketSend(uint8_t s, const uint8_t * buf, uint16_t len);
-	// Receive data (TCP)
-	static int socketRecv(uint8_t s, uint8_t * buf, int16_t len);
-	static uint16_t socketRecvAvailable(uint8_t s);
-	static uint8_t socketPeek(uint8_t s);
-	// sets up a UDP datagram, the data for which will be provided by one
-	// or more calls to bufferData and then finally sent with sendUDP.
-	// return 1 if the datagram was successfully set up, or 0 if there was an error
-	static int socketStartUDP(uint8_t s, uint8_t* addr, uint16_t port);
-	// copy up to len bytes of data from buf into a UDP datagram to be
-	// sent later by sendUDP.  Allows datagrams to be built up from a series of bufferData calls.
-	// return Number of bytes successfully buffered
-	static uint16_t socketBufferData(uint8_t s, uint16_t offset, const uint8_t* buf, uint16_t len);
-	// Send a UDP datagram built up from a sequence of startUDP followed by one or more
-	// calls to bufferData.
-	// return 1 if the datagram was successfully sent, or 0 if there was an error
-	static int socketSendUDP(uint8_t s);
-	// Initialize the "random" source port number
-	static void socketPortRand(uint16_t n);
+  friend class EthernetClient;
+  friend class EthernetServer;
 };
 
 extern EthernetClass Ethernet;
