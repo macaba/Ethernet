@@ -120,22 +120,8 @@ uint8_t EthernetClient::status()
 	return Ethernet.socketStatus(sockindex);
 }
 
-void EthernetClient::stop() {
-  if (_sock == MAX_SOCK_NUM)
-    return;
-
-  // attempt to close the connection gracefully (send a FIN to other side)
-  disconnect(_sock);
-  unsigned long start = millis();
-  delayMicroseconds(250);
-  
-  // wait a second for the connection to close
-  while (status() != SnSR::CLOSED && millis() - start < 1000)
-    delay(1);
-
-  // if it hasn't closed, close it forcefully
-  if (status() != SnSR::CLOSED)
-    close(_sock);
+// the next function allows us to use the client returned by
+// EthernetServer::available() as the condition in an if-statement.
 
 bool EthernetClient::operator==(const EthernetClient& rhs)
 {

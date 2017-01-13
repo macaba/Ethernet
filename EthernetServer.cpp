@@ -6,18 +6,11 @@ uint16_t EthernetServer::server_port[MAX_SOCK_NUM];
 
 void EthernetServer::begin()
 {
-  for (int sock = 0; sock < MAX_SOCK_NUM; sock++) {
-    EthernetClient client(sock);
-    if (client.status() == SnSR::CLOSE_WAIT && !client.available()) {
-        client.stop();
-    }
-    if (client.status() == SnSR::CLOSED) {
-      socket(sock, SnMR::TCP, _port, 0);
-      listen(sock);
-      EthernetClass::_server_port[sock] = _port;
-      break;
-    }
-  }  
+	sockindex = Ethernet.socketBegin(SnMR::TCP, _port);
+	if (sockindex < MAX_SOCK_NUM) {
+		Ethernet.socketListen(sockindex);
+		server_port[sockindex] = _port;
+	}
 }
 
 void EthernetServer::accept()

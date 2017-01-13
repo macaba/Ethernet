@@ -13,7 +13,8 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-#define SPI_ETHERNET_SETTINGS SPISettings(24000000, MSBFIRST, SPI_MODE0)
+// Safe for all chips
+#define SPI_ETHERNET_SETTINGS SPISettings(14000000, MSBFIRST, SPI_MODE0)
 
 // Safe for W5200 and W5500, but too fast for W5100
 // uncomment this if you know you'll never need W5100 support
